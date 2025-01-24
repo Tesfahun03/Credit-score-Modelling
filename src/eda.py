@@ -36,7 +36,6 @@ class EdaAnalysis:
             pandas.DataFrame: A DataFrame containing the descriptive 
             statistics of the dataset.
         """
-
         return self.data.describe()
 
     def get_correlation(self, *args):
@@ -49,13 +48,18 @@ class EdaAnalysis:
         Returns:
             pandas.DataFrame: A DataFrame containing the correlation matrix of the numerical columns.
         """
-
-        numerical_data = self.data.select_dtypes(include=['int64', 'float64'])
-        correlation = numerical_data.corr()
-
+        numericaldata = self.data.select_dtypes(include=['int64', 'float64'])
+        correlation = numericaldata.corr()
         return correlation
 
     def get_missing_values(self):
+        """
+        Calculate and return the number of missing values in each column of the dataset.
+        This method computes the sum of missing values for each column and returns a series
+        containing only the columns with missing values.
+        Returns:
+            pandas.Series: A series indicating the number of missing values in each column.
+        """
         missing_values = self.data.isnull().sum()
         missing_values = missing_values[missing_values > 0]
         return missing_values
@@ -68,12 +72,11 @@ class EdaAnalysis:
                   Series containing the counts of unique values in each 
                   categorical column.
         """
-
-        categorical_data = self.data.select_dtypes(
+        categoricaldata = self.data.select_dtypes(
             include=['object', 'category'])
         distribution = {}
-        for column in categorical_data.columns:
-            distribution[column] = categorical_data[column].value_counts()
+        for column in categoricaldata.columns:
+            distribution[column] = categoricaldata[column].value_counts()
         return distribution
 
 
@@ -109,6 +112,7 @@ class EdaPlot:
         """
         eda = EdaAnalysis(self.data)
         plt.matshow(eda.get_correlation())
+        plt.show()
 
     def plot_boxplot(self, column):
         """
@@ -118,8 +122,7 @@ class EdaPlot:
         Returns:
         None
         """
-
-        self.data.boxplot(column)
+        self.data.boxplot(column=column)
         plt.show()
 
     def plot_numerical_distribution(self, column):
@@ -129,13 +132,12 @@ class EdaPlot:
         and creates a histogram for each column to visualize its distribution. Each histogram
         is displayed with a title, x-axis label, and y-axis label.
         Parameters:
-        None
+        column (str): The name of the column to plot the distribution for.
         Returns:
         None
         """
-
         plt.figure(figsize=(10, 6))
-        plt.hist(self.data[column], bins=30, edgecolor='k', alpha=0.7)
+        self.data[column].hist(bins=30, edgecolor='black')
         plt.title(f'Distribution of {column}')
         plt.xlabel(column)
         plt.ylabel('Frequency')
@@ -147,11 +149,10 @@ class EdaPlot:
         This method selects all columns of type 'object' or 'category' from the dataset
         and plots a bar chart for the distribution of each categorical feature.
         Parameters:
-        None
+        column (str): The name of the column to plot the distribution for.
         Returns:
         None
         """
-
         plt.figure(figsize=(10, 6))
         self.data[column].value_counts().plot(kind='bar')
         plt.title(f'Distribution of {column}')

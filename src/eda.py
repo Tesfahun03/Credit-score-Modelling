@@ -80,7 +80,7 @@ class EdaAnalysis:
         return distribution
 
 
-class EdaPlot:
+class EdaPlot(EdaAnalysis):
     """
     A class used to perform exploratory data analysis (EDA) and generate various plots.
     Attributes
@@ -98,9 +98,6 @@ class EdaPlot:
         plot_categorical_distribution():
             Plots the distribution of all categorical columns in the dataset.
         """
-
-    def __init__(self, data):
-        self.data = data
 
     def plot_correlation_matrix(self):
         """

@@ -31,6 +31,7 @@ class EdaAnalysis:
     def get_correlation(self, *args):
         numerical_data = self.data.select_dtypes(include=['int64', 'float64'])
         correlation = numerical_data.corr()
+
         return correlation
 
     def get_missing_values(self):
@@ -45,3 +46,36 @@ class EdaAnalysis:
         for column in categorical_data.columns:
             distribution[column] = categorical_data[column].value_counts()
         return distribution
+
+
+class EdaPlot:
+    def __init__(self, data):
+        self.data = data
+
+    def get_data_info(self):
+        return self.data.info()
+
+    def plot_missing_values(self):
+        missing_values = self.data.isnull().sum()
+        missing_values = missing_values[missing_values > 0]
+        missing_values.sort_values(inplace=True)
+        missing_values.plot.bar()
+        plt.show()
+
+    def plot_correlation_matrix(self, target):
+        eda = EdaAnalysis(self.data)
+        plt.matshow(eda.get_correlation())
+
+    def plot_boxplot(self, column):
+        self.data.boxplot(column)
+        plt.show()
+
+    def plot_numerical_distribution(self):
+        numerical_data = self.data.select_dtypes(include=['int64', 'float64'])
+        for column in numerical_data.columns:
+            plt.figure(figsize=(10, 6))
+            plt.hist(numerical_data[column], bins=30, edgecolor='k', alpha=0.7)
+            plt.title(f'Distribution of {column}')
+            plt.xlabel(column)
+            plt.ylabel('Frequency')
+            plt.show()

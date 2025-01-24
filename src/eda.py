@@ -36,7 +36,7 @@ class EdaAnalysis:
             pandas.DataFrame: A DataFrame containing the descriptive 
             statistics of the dataset.
         """
-        
+
         return self.data.describe()
 
     def get_correlation(self, *args):
@@ -122,7 +122,7 @@ class EdaPlot:
         self.data.boxplot(column)
         plt.show()
 
-    def plot_numerical_distribution(self):
+    def plot_numerical_distribution(self, column):
         """
         Plots the distribution of numerical features in the dataset.
         This method selects all numerical columns (int64 and float64) from the dataset
@@ -134,16 +134,14 @@ class EdaPlot:
         None
         """
 
-        numerical_data = self.data.select_dtypes(include=['int64', 'float64'])
-        for column in numerical_data.columns:
-            plt.figure(figsize=(10, 6))
-            plt.hist(numerical_data[column], bins=30, edgecolor='k', alpha=0.7)
-            plt.title(f'Distribution of {column}')
-            plt.xlabel(column)
-            plt.ylabel('Frequency')
-            plt.show()
+        plt.figure(figsize=(10, 6))
+        plt.hist(self.data[column], bins=30, edgecolor='k', alpha=0.7)
+        plt.title(f'Distribution of {column}')
+        plt.xlabel(column)
+        plt.ylabel('Frequency')
+        plt.show()
 
-    def plot_categorical_distribution(self):
+    def plot_categorical_distribution(self, column):
         """
         Plots the distribution of categorical features in the dataset.
         This method selects all columns of type 'object' or 'category' from the dataset
@@ -153,12 +151,10 @@ class EdaPlot:
         Returns:
         None
         """
-        categorical_data = self.data.select_dtypes(
-            include=['object', 'category'])
-        for column in categorical_data.columns:
-            plt.figure(figsize=(10, 6))
-            categorical_data[column].value_counts().plot(kind='bar')
-            plt.title(f'Distribution of {column}')
-            plt.xlabel(column)
-            plt.ylabel('Frequency')
-            plt.show()
+
+        plt.figure(figsize=(10, 6))
+        self.data[column].value_counts().plot(kind='bar')
+        plt.title(f'Distribution of {column}')
+        plt.xlabel(column)
+        plt.ylabel('Frequency')
+        plt.show()

@@ -79,6 +79,18 @@ class EdaAnalysis:
             distribution[column] = categoricaldata[column].value_counts()
         return distribution
 
+    def delete_columns(self, columns):
+        """
+        Delete columns from the dataset.
+        This method deletes the specified columns from the dataset and returns the modified dataset.
+        Args:
+            columns (list): A list of column names to be deleted from the dataset.
+        Returns:
+            pandas.DataFrame: A DataFrame with the specified columns removed.
+        """
+        self.data.drop(columns, axis=1)
+        return self.data
+
 
 class EdaPlot(EdaAnalysis):
     """

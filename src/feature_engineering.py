@@ -58,16 +58,20 @@ class AggregateFeature:
 class ExtractFeature(AggregateFeature):
     logging.info("Creating the ExtractFeature class and initialize data")
 
-    def extract_hr_to_year(self, column):
+    def extract_hr_to_year(self, column, new_column):
         """
         Extracts the hour from a datetime column.
         Returns:
             pandas.Series: A series containing the extracted hour values.
         """
         logging.info("Extracting hour from datetime column")
+
         extracted = {}
-        extracted['hr'] = self.data[column].dt.hour
-        extracted['day'] = self.data[column].dt.day
-        extracted['month'] = self.data[column].dt.month
-        extracted['year'] = self.data[column].dt.year
-        return extracted
+        extracted[1] = self.data[column].dt.hour
+        extracted[2] = self.data[column].dt.day
+        extracted[3] = self.data[column].dt.month
+        extracted[4] = self.data[column].dt.year
+        for i, column_names in enumerate(new_column, start=1):
+            self.perform_insertion(column, column_names, extracted[i])
+
+        return self.data

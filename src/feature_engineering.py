@@ -79,34 +79,31 @@ class ExtractFeature(AggregateFeature):
         return self.data
 
 
-class RFMSFeature:
-    def __init__(self, data):
-        self.data = data
+def calculate_rfms(data):
+    """
+    Calculate Recency, Frequency, Monetary, and Stability features for each customer.
+    """
+    current_time = datetime.now()
+    data['Transaction-Day'] = pd.to_datetime(data['Transaction-Day'])
+    # Recency: Days since the last transaction
+    recency = data.groupby('CustomerId')[
+        'Transaction-Day'].max().apply(lambda x: (current_time - x))
 
-    def calculate_rfms(data):
-        """
-        Calculate Recency, Frequency, Monetary, and Stability features for each customer.
-        """
-        current_time = datetime.now()
+    # Frequency: Number of transactions
+    frequency = data.groupby('CustomerId')['TransactionId'].count()
 
-        # Recency: Days since the last transaction
-        recency = data.groupby('CustomerId')['Transaction-Day'].max().apply(lambda x: (current_time - x))
+    # Monetary: Total transaction value
+    monetary = data.groupby('CustomerId')['Value'].sum()
 
-        # Frequency: Number of transactions
-        frequency = data.groupby('CustomerId')['TransactionId'].count()
+    # Stability: Standard deviation of transaction values
+    stability = data.groupby('CustomerId')['Value'].std().fillna(0)
 
-        # Monetary: Total transaction value
-        monetary = data.groupby('CustomerId')['Value'].sum()
+    # Combine features into a DataFrame
+    rfms = pd.DataFrame({
+        'Recency': recency,
+        'Frequency': frequency,
+        'Monetary': monetary,
+        'Stability': stability
+    }).reset_index()
 
-        # Stability: Standard deviation of transaction values
-        stability = data.groupby('CustomerId')['Value'].std().fillna(0)
-
-        # Combine features into a DataFrame
-        rfms = pd.DataFrame({
-            'Recency': recency,
-            'Frequency': frequency,
-            'Monetary': monetary,
-            'Stability': stability
-        }).reset_index()
-
-        return rfms
+    return rfms

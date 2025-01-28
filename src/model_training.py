@@ -74,26 +74,30 @@ class TrainData:
 
 
 class EvaluateModel:
-    """_class for evualuating the accuracy of a given model_
-    """
-    logging.info('Evaluating models now begin..')
+    """A class for evaluating machine learning models."""
 
     def evaluate_model(self, model, x_test, y_test):
-        """_evaluates the errors of the model using accuracy metrics_
-
-        Args:
-            model (_[LinearRegression, DecisionTreeRegressor, RandomForestRegressor, XGBOOST]_): _regression models to measure thier accuracy_
-            x_test (_pd.DataFrame_): _Pandas dataframe of testing data for the features columns_
-            y_test (_pd.DataFrame_): _pandas dataframe of testing data for the target column_
-
-        Returns:
-            _Accuracy metrics_: _' '_
-        """
+        # Make predictions
         y_pred = model.predict(x_test)
 
-        mae = mean_absolute_error(y_test, y_pred)
-        mse = mean_squared_error(y_test, y_pred)
-        r2 = r2_score(y_test, y_pred)
-        roc_auc_scores = roc_auc_score(y_test, y_pred)
+        # For regression models, skip roc_auc_score and focus on MAE, MSE, and R2
+        if isinstance(model, RandomForestRegressor):
+            mae = mean_absolute_error(y_test, y_pred)
+            mse = mean_squared_error(y_test, y_pred)
+            r2 = r2_score(y_test, y_pred)
+            roc_auc_scores = None  # Not applicable for regression
+        else:
+            # For classification models, ensure y_test and y_pred are binary
+            if y_test.dtype.kind in 'fc':  # Continuous target
+                y_test = (y_test >= 0.5).astype(int)
+                y_pred = (y_pred >= 0.5).astype(int)
+
+            mae = mean_absolute_error(y_test, y_pred)
+            mse = mean_squared_error(y_test, y_pred)
+            r2 = r2_score(y_test, y_pred)
+            try:
+                roc_auc_scores = roc_auc_score(y_test, y_pred)
+            except ValueError as e:
+                roc_auc_scores = None  # Handle if roc_auc_score cannot be computed
 
         return mae, mse, r2, roc_auc_scores, y_pred

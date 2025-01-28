@@ -13,7 +13,9 @@ class PlotMetrics:
     """
 
     def __init__(self, models, mae_scores, mse_scores, r2_scores, roc_auc_scores):
-        self.models = models
+        # Ensure that models is a list of strings
+        self.models = [str(model)
+                       for model in models]  # Ensure models are strings
         self.mae_scores = mae_scores
         self.mse_scores = mse_scores
         self.r2_scores = r2_scores
@@ -53,12 +55,20 @@ class PlotMetrics:
         plt.xticks(rotation=45)
         plt.show()
 
-        # Plot for ROC AUC Scores (if available)
+        # Check if the roc_auc_scores are numerical values (like float64)
+        logging.info(
+            f"Checking data type of roc_auc_scores: {type(self.roc_auc_scores)}")
+
+        # Plot for ROC AUC Scores
         logging.info('Plotting graph for ROC AUC Scores')
-        plt.figure(figsize=(6, 4))
-        plt.bar(self.models, self.roc_auc_scores, color='blue')
-        plt.xlabel('Models')
-        plt.ylabel('ROC AUC Scores')
-        plt.title('Comparison of ROC AUC Scores')
-        plt.xticks(rotation=45)
-        plt.show()
+        if isinstance(self.roc_auc_scores, (list, np.ndarray)):
+            plt.figure(figsize=(6, 4))
+            plt.bar(self.models, self.roc_auc_scores, color='blue')
+            plt.xlabel('Models')
+            plt.ylabel('ROC AUC Scores')
+            plt.title('Comparison of ROC AUC Scores')
+            plt.xticks(rotation=45)
+            plt.show()
+        else:
+            logging.error(
+                'roc_auc_scores should be a list or numpy array of numerical values.')

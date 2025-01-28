@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import logging
+from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
 
@@ -32,7 +33,8 @@ class AggregateFeature:
             value (any): The value to insert into the new column.
             column (str): The name of the column to insert.
         """
-        logging.info("Performing insertion operation on specified column")
+        logging.info(
+            f"Performing insertion operation on {new_column_name} column")
         column_index = self.data.columns.get_loc(column)
         self.data.insert(column_index + 1, new_column_name, value)
 
@@ -49,7 +51,7 @@ class AggregateFeature:
             pandas.Series: The result of the aggregation operation.
         """
         logging.info(
-            "Aggregating data based on specified column and operation")
+            f"Aggregating data  on {column} and operation: {operation}")
         aggregated = self.data.groupby(group_by)[column].transform(operation)
         column_index = self.data.columns.get_loc(column)
         self.perform_insertion(column, new_column_name, aggregated)
@@ -75,3 +77,36 @@ class ExtractFeature(AggregateFeature):
             self.perform_insertion(column, column_names, extracted[i])
 
         return self.data
+
+
+class RFMSFeature:
+    def __init__(self, data):
+        self.data = data
+
+    def calculate_rfms(data):
+        """
+        Calculate Recency, Frequency, Monetary, and Stability features for each customer.
+        """
+        current_time = datetime.now()
+
+        # Recency: Days since the last transaction
+        recency = data.groupby('CustomerId')['Transaction-Day'].max().apply(lambda x: (current_time - x))
+
+        # Frequency: Number of transactions
+        frequency = data.groupby('CustomerId')['TransactionId'].count()
+
+        # Monetary: Total transaction value
+        monetary = data.groupby('CustomerId')['Value'].sum()
+
+        # Stability: Standard deviation of transaction values
+        stability = data.groupby('CustomerId')['Value'].std().fillna(0)
+
+        # Combine features into a DataFrame
+        rfms = pd.DataFrame({
+            'Recency': recency,
+            'Frequency': frequency,
+            'Monetary': monetary,
+            'Stability': stability
+        }).reset_index()
+
+        return rfms
